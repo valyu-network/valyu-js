@@ -1,0 +1,29 @@
+{
+    "name": "valyu",
+    "version": "1.0.0",
+    "description": "We handle the data. You handle the AI.",
+    "main": "index.js",
+    "scripts": {
+      "test": "node test.js"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/ValyuNetwork/valyu-js.git"
+    },
+    "keywords": [
+      "ai",
+      "sdk",
+      "rag",
+      "valyu"
+    ],
+    "author": "Valyu",
+    "license": "MIT",
+    "bugs": {
+      "url": "https://github.com/ValyuNetwork/valyu-js/issues"
+    },
+    "homepage": "https://valyu.network",
+    "dependencies": {
+      "axios": "^1.4.0"
+    }
+  }
+  
