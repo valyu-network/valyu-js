@@ -34,20 +34,30 @@ class Valyu {
    *
    * @param {string} query - The query to search for.
    * @param {"web"|"proprietary"} search_type - The type of search to perform.
-   * @param {number} [num_query=10] - The number of queries to run.
-   * @param {number} [num_results=10] - The number of results to return per query.
+   * @param {number} [max_num_results=10] - The maximum number of results to return.
+   * @param {boolean} [query_rewrite=true] - Whether to rewrite the query to improve search quality.
+   * @param {number} [similarity_threshold=0.4] - The similarity threshold to not return results below.
    * @param {number} [max_price=1] - The maximum price (per thousand queries) to spend on the search.
    * @param {string[]} [data_sources] - Optional list of data sources.
    *
    * @returns {Promise<SearchResponse>} The search response.
    */
-  async context(query, search_type, num_query = 10, num_results = 10, max_price = 1, data_sources) {
+  async context(
+    query,
+    search_type,
+    max_num_results = 10,
+    query_rewrite = true,
+    similarity_threshold = 0.4,
+    max_price = 1,
+    data_sources
+  ) {
     try {
       const payload = {
         query,
         search_type,
-        num_query,
-        num_results,
+        max_num_results,
+        query_rewrite,
+        similarity_threshold,
         max_price
       };
 
@@ -61,11 +71,11 @@ class Valyu {
         { headers: this.headers }
       );
 
-      // If the HTTP status code is not in the 200 range, return an error response.
-      if (response.status < 200 || response.status >= 300) {
+      if (!response.status || response.status < 200 || response.status >= 300) {
         return {
           success: false,
-          error: response.data.error,
+          error: response.data?.error,
+          tx_id: null,
           query,
           results: [],
           results_by_source: { web: 0, proprietary: 0 },
@@ -75,18 +85,49 @@ class Valyu {
         };
       }
 
-      // Otherwise, return the data as-is (assuming it matches the expected SearchResponse format)
       return response.data;
     } catch (e) {
       return {
         success: false,
         error: e.message,
+        tx_id: null,
         query,
         results: [],
         results_by_source: { web: 0, proprietary: 0 },
         total_deduction_pcm: 0.0,
         total_deduction_dollars: 0.0,
         total_characters: 0
+      };
+    }
+  }
+
+  /**
+   * Send feedback about a previous search response.
+   *
+   * @param {string} tx_id - The transaction ID from a previous search response
+   * @param {string} feedback - Feedback message about the search results
+   * @param {"very good"|"good"|"bad"|"very bad"} sentiment - The sentiment of the feedback
+   * @returns {Promise<Object>} Response containing success status and optional error message
+   */
+  async feedback(tx_id, feedback, sentiment) {
+    try {
+      const payload = {
+        tx_id,
+        feedback,
+        sentiment: sentiment.toLowerCase()
+      };
+
+      const response = await axios.post(
+        `${this.baseUrl}/feedback`,
+        payload,
+        { headers: this.headers }
+      );
+
+      return response.data;
+    } catch (e) {
+      return {
+        success: false,
+        error: e.message
       };
     }
   }
