@@ -99,7 +99,7 @@ export class Valyu {
       const payload = {
         tx_id,
         feedback,
-        sentiment: sentiment.toLowerCase()
+        sentiment
       };
 
       const response = await axios.post(
@@ -107,6 +107,13 @@ export class Valyu {
         payload,
         { headers: this.headers }
       );
+
+      if (!response.status || response.status < 200 || response.status >= 300) {
+        return {
+          success: false,
+          error: response.data?.error
+        };
+      }
 
       return response.data;
     } catch (e: any) {
