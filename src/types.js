@@ -13,7 +13,6 @@
  * @property {string} source
  * @property {number} price
  * @property {number} length
- * @property {string} org_id
  * @property {number} relevance_score
  */
 
@@ -27,6 +26,7 @@
  * @typedef {Object} SearchResponse
  * @property {boolean} success
  * @property {string} [error]
+ * @property {string} tx_id
  * @property {string} query
  * @property {SearchResult[]} results
  * @property {ResultsBySource} results_by_source
